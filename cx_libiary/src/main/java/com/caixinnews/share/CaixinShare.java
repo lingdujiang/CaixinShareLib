@@ -3,7 +3,6 @@ package com.caixinnews.share;
 
 import android.app.Activity;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ResolveInfo;
@@ -21,6 +20,12 @@ import com.sina.weibo.sdk.api.WeiboMultiMessage;
 import com.sina.weibo.sdk.api.share.IWeiboShareAPI;
 import com.sina.weibo.sdk.api.share.SendMultiMessageToWeiboRequest;
 import com.sina.weibo.sdk.api.share.WeiboShareSDK;
+import com.sina.weibo.sdk.auth.Oauth2AccessToken;
+import com.sina.weibo.sdk.auth.WeiboAuthListener;
+import com.sina.weibo.sdk.exception.WeiboException;
+import com.sina.weibo.sdk.net.RequestListener;
+import com.sina.weibo.sdk.net.WeiboParameters;
+import com.sina.weibo.sdk.openapi.legacy.OAuthorAPI;
 import com.tencent.connect.share.QQShare;
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.opensdk.modelmsg.WXImageObject;
@@ -35,9 +40,6 @@ import com.tencent.tauth.Tencent;
 import com.tencent.tauth.UiError;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +51,7 @@ public class CaixinShare {
     public static final String SHARE_PLATFORM_EMAIL = "Email";
 
 
-    private Context context;
+    private Activity context;
     private boolean isInstalledWeibo;
     private int supportApiLevel;
 
@@ -344,23 +346,100 @@ public class CaixinShare {
         return (type == null) ? String.valueOf(System.currentTimeMillis()) : type + System.currentTimeMillis();
     }
 
+    private CXShareEntity entity;
+    private Oauth2AccessToken mAccessToken;
+
     public void shareToWeibo(CXShareEntity entity) {
-        //TODO 授权
-//        auth();
         //将APP注册到微博
         registerAppToWeibo();
+        this.entity = entity;
         //分享
         if(isInstalledWeibo){
             share_Weibo_client(entity);
         }else {
-            Toast.makeText(context, "微博客户端未安装或不支持分享", Toast.LENGTH_LONG).show();
+            //判断是否需要通过web授权
+            long expiretime = AccessTokenKeeper.readAccessToken(context).getExpiresTime();
+            long currenttime = System.currentTimeMillis();
+            if (expiretime - currenttime < 0) {
+                auth();
+            } else {
+                shareToWeiboFromWeb(entity);
+            }
         }
 
     }
 
-    private static void auth() {
+    private void auth() {
+        CaixinLogin caixinLogin = new CaixinLogin(context);
+        caixinLogin.LoginFromWeiboWeb(listener);
+    }
+
+    public void shareToWeiboFromWeb(CXShareEntity entity) {
+        if (mAccessToken == null) {
+            mAccessToken = AccessTokenKeeper.readAccessToken(context);
+        }
+        OAuthorAPI oAuthorAPI = new OAuthorAPI(context, Constants.APP_KEY_WEIBO, mAccessToken);
+        WeiboParameters weiboParameters = new WeiboParameters(Constants.APP_KEY_WEIBO);
+        weiboParameters.put("status", entity.summary);
+        if (!TextUtils.isEmpty(entity.imagePath)) {
+            Bitmap bitmap = BitmapFactory.decodeFile(entity.imagePath);
+            weiboParameters.put("pic", bitmap);
+            oAuthorAPI.requestAsync(
+                    "https://upload.api.weibo.com/2/statuses/upload.json",
+                    weiboParameters,
+                    OAuthorAPI.HTTPMETHOD_POST,
+                    requestListener
+            );
+        } else {
+            oAuthorAPI.requestAsync(
+                    "https://api.weibo.com/2/statuses/update.json",
+                    weiboParameters,
+                    OAuthorAPI.HTTPMETHOD_POST,
+                    requestListener
+            );
+        }
+        Toast.makeText(context, "分享正在后台进行", Toast.LENGTH_LONG).show();
 
     }
+
+    WeiboAuthListener listener = new WeiboAuthListener() {
+        @Override
+        public void onComplete(Bundle bundle) {
+            // 从 Bundle 中解析 Token
+            mAccessToken = Oauth2AccessToken.parseAccessToken(bundle);
+            if (mAccessToken.isSessionValid()) {
+                // 保存 Token 到 SharedPreferences
+                AccessTokenKeeper.writeAccessToken(context, mAccessToken);
+                if (entity != null) {
+                    shareToWeiboFromWeb(entity);
+                }
+            } else {
+                Toast.makeText(context, "授权失败", Toast.LENGTH_LONG).show();
+            }
+        }
+
+        @Override
+        public void onWeiboException(WeiboException e) {
+
+        }
+
+        @Override
+        public void onCancel() {
+            Toast.makeText(context, "取消授权", Toast.LENGTH_LONG).show();
+        }
+    };
+
+    RequestListener requestListener = new RequestListener() {
+        @Override
+        public void onComplete(String s) {
+            Toast.makeText(context, "分享成功", Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onWeiboException(WeiboException e) {
+            Toast.makeText(context, "分享失败", Toast.LENGTH_LONG).show();
+        }
+    };
 
     private void share_Weibo_client(CXShareEntity entity) {
         // 1. 初始化微博的分享消息

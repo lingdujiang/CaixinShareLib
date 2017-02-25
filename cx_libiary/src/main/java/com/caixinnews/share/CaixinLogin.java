@@ -53,6 +53,17 @@ public class CaixinLogin {
     }
 
     /**
+     * 微博通过web登录(授权)
+     * @param listener
+     */
+    public void LoginFromWeiboWeb(WeiboAuthListener listener) {
+        mAuthInfo = new AuthInfo(mContext, Constants.APP_KEY_WEIBO, Constants.REDIRECT_URL_WEIBO,
+                Constants.SCOPE_WEIBO);
+        mSsoHandler = new SsoHandler((Activity) mContext, mAuthInfo);
+        mSsoHandler.authorizeWeb(listener);
+    }
+
+    /**
      * 微博SSO 授权时，需要在 相应activity的onActivityResult()} 中调用,否则WeiboAuthListener接口中回调方法不会执行
      *
      * @param requestCode
