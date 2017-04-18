@@ -2,11 +2,15 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-version = "0.9.4"
+version = "0.9.5"
 
 
-def siteUrl = 'https://github.com/lingdujiang/TestModel'   // 项目的主页
-def gitUrl = 'https://github.com/lingdujiang/TestModel.git'   // Git仓库的url
+//def siteUrl = 'https://github.com/lingdujiang/TestModel'   // 项目的主页
+//def gitUrl = 'https://github.com/lingdujiang/TestModel.git'   // Git仓库的url
+
+def siteUrl = 'https://github.com/lingdujiang/CaixinShareLib'   // 项目的主页
+def gitUrl = 'https://github.com/lingdujiang/CaixinShareLib.git'   // Git仓库的url
+
 group = "com.cxlib.share"            // Maven Group ID for the artifact，
 install {
     repositories.mavenInstaller {
@@ -105,6 +109,12 @@ dependencies {
     compile 'com.tencent.mm.opensdk:wechat-sdk-android-with-mta:1.0.2'
     compile files('libs/open_sdk_r5778.jar')
     compile files('libs/libammsdk.jar')
+    //    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+    compile project(':facebook')
+
+
+
+
 }
 
 

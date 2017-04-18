@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="share.caixinlib.com.caixinsharelib">
+    <uses-sdk tools:overrideLibrary="com.android.support:customtabs"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
+
+
+    <meta-data android:name="io.fabric.ApiKey" android:value="0460e5aa7f8a617cc33f43cdfe849cff23e18de1"></meta-data>
     <application
+        android:name="share.caixinlib.com.caixinsharelib.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -18,6 +27,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
+
+        <!--Facebook-->
+        <meta-data android:name="com.facebook.sdk.ApplicationId"
+            android:value="facebook_app_id"/>
+        <activity android:name="com.facebook.FacebookActivity"
+            android:configChanges=
+                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:label="@string/app_name" />
+        <provider android:authorities="com.facebook.app.FacebookContentProvider259759727729348"
+            android:name="com.facebook.FacebookContentProvider"
+            android:exported="true" />
+
     </application>
 
 </manifest>

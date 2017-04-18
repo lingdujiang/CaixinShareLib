@@ -8,45 +8,52 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import com.caixinnews.share.CXShareEntity;
+import com.caixinnews.share.CaixinShare;
+import com.caixinnews.share.ICXShareCallback;
 
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+
+    TextView sharetoFB ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        sharetoFB = (TextView) findViewById(R.id.sharetoFB);
+        sharetoFB.setOnClickListener(this);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.sharetoFB:
+                CXShareEntity entity = new CXShareEntity();
+                entity.imagePath = "https://ss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo/bd_logo1_31bdc765.png";
+                entity.title  = "title title title title title title title title title title ";
+                entity.summary = "summary summary summary summary summary summary summary summary ";
+                entity.url = "http://www.baidu.com";
+                CaixinShare share = new CaixinShare(this);
+                share.shareToFaceBook(entity, new ICXShareCallback() {
+                    @Override
+                    public void onSuccess(Object o) {
+                        Toast.makeText(MainActivity.this,"facebook 分享成功",Toast.LENGTH_LONG).show();
+                    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+                    @Override
+                    public void onCancel() {
+                        Toast.makeText(MainActivity.this,"facebook 分享取消",Toast.LENGTH_LONG).show();
+                    }
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+                    @Override
+                    public void onError(Exception error) {
+                        Toast.makeText(MainActivity.this,"facebook 分享失败",Toast.LENGTH_LONG).show();
+                    }
+                });
+                break;
         }
 
-        return super.onOptionsItemSelected(item);
     }
 }

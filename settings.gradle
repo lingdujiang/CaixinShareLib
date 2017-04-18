@@ -1,1 +1,1 @@
-include ':app', ':cx_libiary'
+include ':app', ':cx_libiary', ':facebook'
