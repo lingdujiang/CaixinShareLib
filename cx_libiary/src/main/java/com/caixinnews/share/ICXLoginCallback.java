@@ -150,6 +150,9 @@ public class ICXLoginCallback implements IUiListener, WeiboAuthListener, Request
     public void onComplete(Bundle bundle) {
         final Oauth2AccessToken mAccessToken = Oauth2AccessToken.parseAccessToken(bundle);
         if (mAccessToken.isSessionValid()) {
+            // 保存 Token 到 SharedPreferences
+            AccessTokenKeeper.writeAccessToken(mContext, mAccessToken);
+
             entity.expiretime = String.valueOf(mAccessToken.getExpiresTime());
             entity.stoken = mAccessToken.getToken();
             entity.userId = mAccessToken.getUid();

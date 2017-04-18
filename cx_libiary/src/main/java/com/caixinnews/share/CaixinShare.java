@@ -25,8 +25,7 @@ import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.auth.WeiboAuthListener;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
-import com.sina.weibo.sdk.net.WeiboParameters;
-import com.sina.weibo.sdk.openapi.legacy.OAuthorAPI;
+import com.sina.weibo.sdk.openapi.StatusesAPI;
 import com.tencent.connect.share.QQShare;
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.opensdk.modelmsg.WXImageObject;
@@ -380,25 +379,14 @@ public class CaixinShare {
         if (mAccessToken == null) {
             mAccessToken = AccessTokenKeeper.readAccessToken(context);
         }
-        OAuthorAPI oAuthorAPI = new OAuthorAPI(context, Constants.APP_KEY_WEIBO, mAccessToken);
-        WeiboParameters weiboParameters = new WeiboParameters(Constants.APP_KEY_WEIBO);
-        weiboParameters.put("status", entity.summary);
+        StatusesAPI statusesAPI = new StatusesAPI(context, Constants.APP_KEY_WEIBO, mAccessToken);
         if (!TextUtils.isEmpty(entity.imagePath)) {
+            //图片
             Bitmap bitmap = BitmapFactory.decodeFile(entity.imagePath);
-            weiboParameters.put("pic", bitmap);
-            oAuthorAPI.requestAsync(
-                    "https://upload.api.weibo.com/2/statuses/upload.json",
-                    weiboParameters,
-                    OAuthorAPI.HTTPMETHOD_POST,
-                    requestListener
-            );
+            statusesAPI.upload(entity.summary, bitmap, "0.0", "0.0", requestListener);
         } else {
-            oAuthorAPI.requestAsync(
-                    "https://api.weibo.com/2/statuses/update.json",
-                    weiboParameters,
-                    OAuthorAPI.HTTPMETHOD_POST,
-                    requestListener
-            );
+            //纯文本
+            statusesAPI.update(entity.summary, "0.0", "0.0", requestListener);
         }
         Toast.makeText(context, "分享正在后台进行", Toast.LENGTH_LONG).show();
 
@@ -466,7 +454,7 @@ public class CaixinShare {
         mWeiboShareAPI.sendRequest((Activity)context,request);
     }
 
-    private static IWeiboShareAPI mWeiboShareAPI;
+    private IWeiboShareAPI mWeiboShareAPI;
 
     private void registerAppToWeibo() {
         // 创建微博 SDK 接口实例

@@ -45,6 +45,7 @@ public class CaixinLogin {
      * @param listener
      */
     public void LoginFromWeibo(WeiboAuthListener listener) {
+        AccessTokenKeeper.clear(mContext);//清空本地存的token
         mAuthInfo = new AuthInfo(mContext, Constants.APP_KEY_WEIBO, Constants.REDIRECT_URL_WEIBO,
                 Constants.SCOPE_WEIBO);
         mSsoHandler = new SsoHandler((Activity) mContext, mAuthInfo);
@@ -57,6 +58,7 @@ public class CaixinLogin {
      * @param listener
      */
     public void LoginFromWeiboWeb(WeiboAuthListener listener) {
+        AccessTokenKeeper.clear(mContext);//清空本地存的token
         mAuthInfo = new AuthInfo(mContext, Constants.APP_KEY_WEIBO, Constants.REDIRECT_URL_WEIBO,
                 Constants.SCOPE_WEIBO);
         mSsoHandler = new SsoHandler((Activity) mContext, mAuthInfo);
