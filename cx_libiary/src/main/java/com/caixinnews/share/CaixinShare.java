@@ -14,10 +14,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.caixinnews.share.facebook.FaceBookShareUtils;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
+
 import com.sina.weibo.sdk.api.ImageObject;
 import com.sina.weibo.sdk.api.TextObject;
 import com.sina.weibo.sdk.api.WeiboMultiMessage;
@@ -481,38 +478,38 @@ public class CaixinShare {
         mWeiboShareAPI.registerApp();
     }
 
-    public void shareToFaceBook(CXShareEntity entity, final ICXShareCallback callback){
-        CallbackManager callBackManager  = CallbackManager.Factory.create();
-        FaceBookShareUtils fb = new FaceBookShareUtils((Activity)context,callBackManager,new FacebookCallback() {
-
-            @Override
-            public void onSuccess(Object o) {
-//                Message msg = Message.obtain();
-//                msg.what = SHARE_COMPLETE;
-//                mHandler.sendMessage(msg);
-//                Toast.makeText(context,"facebook 分享成功",Toast.LENGTH_LONG).show();
-                callback.onSuccess(o);
-            }
-
-            @Override
-            public void onCancel() {
-//                Message msg = Message.obtain();
-//                msg.what = SHARE_CANCEL;
-//                mHandler.sendMessage(msg);
-//                Toast.makeText(context,"facebook 分享取消",Toast.LENGTH_LONG).show();
-                callback.onCancel();
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-//                Message msg = Message.obtain();
-//                msg.what = SHARE_ERROR;
-//                mHandler.sendMessage(msg);
-//                Toast.makeText(context,"facebook 分享失败",Toast.LENGTH_LONG).show();
-                callback.onError(error);
-            }
-        });
-        fb.share(entity.title,entity.imagePath,entity.summary);
-    }
+//    public void shareToFaceBook(CXShareEntity entity, final ICXShareCallback callback){
+//        CallbackManager callBackManager  = CallbackManager.Factory.create();
+//        FaceBookShareUtils fb = new FaceBookShareUtils((Activity)context,callBackManager,new FacebookCallback() {
+//
+//            @Override
+//            public void onSuccess(Object o) {
+////                Message msg = Message.obtain();
+////                msg.what = SHARE_COMPLETE;
+////                mHandler.sendMessage(msg);
+////                Toast.makeText(context,"facebook 分享成功",Toast.LENGTH_LONG).show();
+//                callback.onSuccess(o);
+//            }
+//
+//            @Override
+//            public void onCancel() {
+////                Message msg = Message.obtain();
+////                msg.what = SHARE_CANCEL;
+////                mHandler.sendMessage(msg);
+////                Toast.makeText(context,"facebook 分享取消",Toast.LENGTH_LONG).show();
+//                callback.onCancel();
+//            }
+//
+//            @Override
+//            public void onError(FacebookException error) {
+////                Message msg = Message.obtain();
+////                msg.what = SHARE_ERROR;
+////                mHandler.sendMessage(msg);
+////                Toast.makeText(context,"facebook 分享失败",Toast.LENGTH_LONG).show();
+//                callback.onError(error);
+//            }
+//        });
+//        fb.share(entity.title,entity.imagePath,entity.summary);
+//    }
 
 }

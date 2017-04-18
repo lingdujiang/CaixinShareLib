@@ -36,22 +36,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 entity.summary = "summary summary summary summary summary summary summary summary ";
                 entity.url = "http://www.baidu.com";
                 CaixinShare share = new CaixinShare(this);
-                share.shareToFaceBook(entity, new ICXShareCallback() {
-                    @Override
-                    public void onSuccess(Object o) {
-                        Toast.makeText(MainActivity.this,"facebook 分享成功",Toast.LENGTH_LONG).show();
-                    }
-
-                    @Override
-                    public void onCancel() {
-                        Toast.makeText(MainActivity.this,"facebook 分享取消",Toast.LENGTH_LONG).show();
-                    }
-
-                    @Override
-                    public void onError(Exception error) {
-                        Toast.makeText(MainActivity.this,"facebook 分享失败",Toast.LENGTH_LONG).show();
-                    }
-                });
                 break;
         }
 
