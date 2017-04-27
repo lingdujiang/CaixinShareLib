@@ -55,6 +55,7 @@ public class CaixinLogin {
 
     /**
      * 微博通过web登录(授权)
+     *
      * @param listener
      */
     public void LoginFromWeiboWeb(WeiboAuthListener listener) {
@@ -85,8 +86,10 @@ public class CaixinLogin {
      * @param iUiListener
      */
     public void LoginFromQQ(IUiListener iUiListener) {
-        Tencent mTencent = Tencent.createInstance(Constants.APP_ID_QQ, mContext);
-        mTencent.login((Activity) mContext, "all", iUiListener);
+        if (Util.isQQClientAvailable(mContext)) {
+            Tencent mTencent = Tencent.createInstance(Constants.APP_ID_QQ, mContext);
+            mTencent.login((Activity) mContext, "all", iUiListener);
+        }
     }
 
     public void LoginOutFromQQ() {
@@ -110,6 +113,9 @@ public class CaixinLogin {
      * 微信登录(授权)
      */
     public void LoginByWeixin() {
+        if (!Util.isWeixinAvilible(mContext)) {
+            return;
+        }
         // 通过WXAPIFactory工厂，获取IWXAPI的实例
         IWXAPI api = WXAPIFactory.createWXAPI(mContext, Constants.APP_ID, false);
         // 将该APP注册到微信

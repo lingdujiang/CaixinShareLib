@@ -92,6 +92,9 @@ public class CaixinShare {
      * @param entity
      */
     public void shareToWeiChat(CXShareEntity entity) {
+        if (!Util.isWeixinAvilible(context)) {
+            return;
+        }
         // 获取IWXAPI的实例
         IWXAPI api = WXAPIFactory.createWXAPI(context, Constants.APP_ID, false);
 
@@ -164,6 +167,9 @@ public class CaixinShare {
     int shareType = -1;//qq分享类别
 
     public void shareToQQ(CXShareEntity entity, IUiListener qqShareListener) {
+        if (!Util.isQQClientAvailable(context)) {
+            return;
+        }
         Tencent mTencent = Tencent.createInstance(Constants.APP_ID_QQ, context);
 
         final Bundle params = new Bundle();
@@ -199,6 +205,16 @@ public class CaixinShare {
                 }
             }
         });
+    }
+
+    /**
+     * QQ登录或分享时，需要在 相应activity的onActivityResult()} 中调用，否则回调中方法不执行
+     */
+    public static void onActivityResultForQQ(int requestCode, int resultCode,
+                                             Intent data, IUiListener uiListener) {
+        if (requestCode == com.tencent.connect.common.Constants.REQUEST_QQ_SHARE) {
+            Tencent.onActivityResultData(requestCode, resultCode, data, uiListener);
+        }
     }
 
     /**

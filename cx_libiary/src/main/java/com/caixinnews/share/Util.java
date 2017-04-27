@@ -1,11 +1,14 @@
 package com.caixinnews.share;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.Log;
+import android.widget.Toast;
 
 import junit.framework.Assert;
 
@@ -18,6 +21,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 
 public class Util {
 	
@@ -230,4 +234,46 @@ public class Util {
 		}
 		return null;
 	}
+
+	/**
+	 * 判断是否安装微信客户端
+	 * @param context
+	 * @return
+	 */
+	public static boolean isWeixinAvilible(Context context) {
+		final PackageManager packageManager = context.getPackageManager();// 获取packagemanager
+		List<PackageInfo> pinfo = packageManager.getInstalledPackages(0);// 获取所有已安装程序的包信息
+		if (pinfo != null) {
+			for (int i = 0; i < pinfo.size(); i++) {
+				String pn = pinfo.get(i).packageName;
+				if (pn.equals("com.tencent.mm")) {
+					return true;
+				}
+			}
+		}
+		Toast.makeText(context, "请安装微信客户端", Toast.LENGTH_SHORT).show();
+		return false;
+	}
+
+	/**
+	 * 判断qq是否可用
+	 *
+	 * @param context
+	 * @return
+	 */
+	public static boolean isQQClientAvailable(Context context) {
+		final PackageManager packageManager = context.getPackageManager();
+		List<PackageInfo> pinfo = packageManager.getInstalledPackages(0);
+		if (pinfo != null) {
+			for (int i = 0; i < pinfo.size(); i++) {
+				String pn = pinfo.get(i).packageName;
+				if (pn.equals("com.tencent.mobileqq")) {
+					return true;
+				}
+			}
+		}
+		Toast.makeText(context, "请安装QQ客户端", Toast.LENGTH_SHORT).show();
+		return false;
+	}
+
 }
