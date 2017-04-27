@@ -14,7 +14,6 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-
 import com.sina.weibo.sdk.api.ImageObject;
 import com.sina.weibo.sdk.api.TextObject;
 import com.sina.weibo.sdk.api.WeiboMultiMessage;
@@ -37,7 +36,6 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import com.tencent.open.utils.ThreadManager;
 import com.tencent.tauth.IUiListener;
 import com.tencent.tauth.Tencent;
-import com.tencent.tauth.UiError;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -59,7 +57,7 @@ public class CaixinShare {
         this.context = activity;
     }
 
-    public static void init(String APP_ID_WX,String APP_WX_SECRET,String APP_ID_QQ,String APP_KEY_WEIBO,String REDIRECT_URL_WEIBO,String SCOPE_WEIBO){
+    public static void init(String APP_ID_WX, String APP_WX_SECRET, String APP_ID_QQ, String APP_KEY_WEIBO, String REDIRECT_URL_WEIBO, String SCOPE_WEIBO) {
         Constants.APP_ID = APP_ID_WX;
         Constants.APP_WECHAT_SECRET = APP_WX_SECRET;
         Constants.APP_ID_QQ = APP_ID_QQ;
@@ -69,8 +67,9 @@ public class CaixinShare {
     }
 
     private static final int THUMB_SIZE = 150;
-    public void shareToPlatform(CXShareEntity entity) {
-        switch (entity.platform){
+
+    public void shareToPlatform(CXShareEntity entity, ICXShareCallback qqShareListener) {
+        switch (entity.platform) {
             case SHARE_PLATFORM_WEICHAT:
             case SHARE_PLATFORM_MOMENT:
                 shareToWeiChat(entity);
@@ -79,7 +78,7 @@ public class CaixinShare {
                 shareToWeibo(entity);
                 break;
             case SHARE_PLATFORM_QQ:
-                shareToQQ(entity);
+                shareToQQ(entity, qqShareListener);
                 break;
             case SHARE_PLATFORM_EMAIL:
                 shareToEmail(entity);
@@ -162,10 +161,9 @@ public class CaixinShare {
     }
 
 
-
     int shareType = -1;//qq分享类别
 
-    public void shareToQQ(CXShareEntity entity) {
+    public void shareToQQ(CXShareEntity entity, IUiListener qqShareListener) {
         Tencent mTencent = Tencent.createInstance(Constants.APP_ID_QQ, context);
 
         final Bundle params = new Bundle();
@@ -187,10 +185,10 @@ public class CaixinShare {
         params.putString(QQShare.SHARE_TO_QQ_APP_NAME, "AppName");
         params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, shareType);
 //        params.putInt(QQShare.SHARE_TO_QQ_EXT_INT, QQShare.SHARE_TO_QQ_FLAG_QZONE_AUTO_OPEN);
-        doShareToQQ(params, mTencent);
+        doShareToQQ(params, mTencent, qqShareListener);
     }
 
-    private void doShareToQQ(final Bundle params, final Tencent mTencent) {
+    private void doShareToQQ(final Bundle params, final Tencent mTencent, final IUiListener qqShareListener) {
         // QQ分享要在主线程做
         ThreadManager.getMainHandler().post(new Runnable() {
 
@@ -249,7 +247,7 @@ public class CaixinShare {
     }
 
     public void shareToEmail(CXShareEntity entity) {
-        if(!TextUtils.isEmpty(entity.imagePath)){//&&!TextUtils.isEmpty(entity.title)
+        if (!TextUtils.isEmpty(entity.imagePath)) {//&&!TextUtils.isEmpty(entity.title)
             Intent email = new Intent(android.content.Intent.ACTION_SEND);
             File file = new File(entity.imagePath);
             email.setType("application/octet-stream");
@@ -260,8 +258,8 @@ public class CaixinShare {
             email.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
             //调用系统的邮件系统
 //            context.startActivity(Intent.createChooser(email, "请选择邮件发送软件"));
-            filterApp(email,entity,1);
-        }else if(TextUtils.isEmpty(entity.imagePath)){
+            filterApp(email, entity, 1);
+        } else if (TextUtils.isEmpty(entity.imagePath)) {
             Intent email = new Intent(android.content.Intent.ACTION_SEND);
             email.setType("plain/text");
             String emailTitle = entity.title;
@@ -269,22 +267,22 @@ public class CaixinShare {
             email.putExtra(android.content.Intent.EXTRA_SUBJECT, emailTitle);
             email.putExtra(android.content.Intent.EXTRA_TEXT, emailContent);
 //            context.startActivity(Intent.createChooser(email, "请选择邮件发送软件"));
-            filterApp(email,entity,0);
+            filterApp(email, entity, 0);
         }
 
     }
 
 
-    private void filterApp(Intent intent,CXShareEntity entity,int type){//type:0纯文字1带附件
+    private void filterApp(Intent intent, CXShareEntity entity, int type) {//type:0纯文字1带附件
 
         List<ResolveInfo> resInfo = context.getPackageManager().queryIntentActivities(intent, 0);
         if (!resInfo.isEmpty()) {
             List<Intent> recommonedIntents = new ArrayList<Intent>();
             for (ResolveInfo info : resInfo) {
                 Intent targeted = new Intent(Intent.ACTION_SEND);
-                if(type == 1){
+                if (type == 1) {
                     targeted.setType("application/octet-stream");
-                }else{
+                } else {
                     targeted.setType("text/plain");
                 }
                 targeted.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -293,7 +291,7 @@ public class CaixinShare {
                     targeted.putExtra(android.content.Intent.EXTRA_SUBJECT, entity.title);
                     targeted.putExtra(android.content.Intent.EXTRA_TEXT, entity.summary);
                     targeted.setComponent(new ComponentName(activityInfo.packageName, activityInfo.name));
-                    if(type==1){
+                    if (type == 1) {
                         File file = new File(entity.imagePath);
                         targeted.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
                     }
@@ -305,9 +303,9 @@ public class CaixinShare {
             }
             if (recommonedIntents.size() < 1) {
                 return;
-            }else if(recommonedIntents.size()==1){
+            } else if (recommonedIntents.size() == 1) {
                 context.startActivity(recommonedIntents.get(0));
-            }else{
+            } else {
                 Intent chooserIntent = Intent.createChooser(recommonedIntents.remove(recommonedIntents.size() - 1), "分享到");
                 if (chooserIntent == null) {
                     return;
@@ -323,26 +321,6 @@ public class CaixinShare {
         }
     }
 
-
-    IUiListener qqShareListener = new IUiListener() {
-        @Override
-        public void onCancel() {
-            if (shareType != QQShare.SHARE_TO_QQ_TYPE_IMAGE) {
-                Toast.makeText(context, "分享取消", Toast.LENGTH_LONG).show();
-            }
-        }
-
-        @Override
-        public void onComplete(Object response) {
-            Toast.makeText(context, "分享完成", Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onError(UiError e) {
-            Toast.makeText(context, "分享失败", Toast.LENGTH_LONG).show();
-        }
-    };
-
     private String buildTransaction(final String type) {
         return (type == null) ? String.valueOf(System.currentTimeMillis()) : type + System.currentTimeMillis();
     }
@@ -355,9 +333,9 @@ public class CaixinShare {
         registerAppToWeibo();
         this.entity = entity;
         //分享
-        if(isInstalledWeibo){
+        if (isInstalledWeibo) {
             share_Weibo_client(entity);
-        }else {
+        } else {
             //判断是否需要通过web授权
             long expiretime = AccessTokenKeeper.readAccessToken(context).getExpiresTime();
             long currenttime = System.currentTimeMillis();
@@ -451,7 +429,7 @@ public class CaixinShare {
         request.transaction = String.valueOf(System.currentTimeMillis());
         request.multiMessage = weiboMessage;
         // 3. 发送请求消息到微博，唤起微博分享界面
-        mWeiboShareAPI.sendRequest((Activity)context,request);
+        mWeiboShareAPI.sendRequest((Activity) context, request);
     }
 
     private IWeiboShareAPI mWeiboShareAPI;

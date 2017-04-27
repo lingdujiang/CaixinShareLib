@@ -27,19 +27,6 @@
             android:screenOrientation="behind"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
-        <activity
-            android:name=".activity.WeiboActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:launchMode="singleTop"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
-
-            <intent-filter>
-                <action android:name="com.sina.weibo.sdk.action.ACTION_SDK_REQ_ACTIVITY" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
         <!-- 微博web授权页面-->
         <activity
             android:name="com.sina.weibo.sdk.component.WeiboSdkBrowser"
