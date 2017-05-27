@@ -116,9 +116,13 @@ public class CaixinShare {
             msg.description = entity.summary;
 
             Bitmap bmp = BitmapFactory.decodeFile(entity.imagePath);
-            Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
-            bmp.recycle();
-            msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
+            try {
+                Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
+                bmp.recycle();
+                msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
 
             SendMessageToWX.Req req = new SendMessageToWX.Req();
             req.transaction = buildTransaction("webpage");
@@ -135,9 +139,13 @@ public class CaixinShare {
 
 
             Bitmap bmp = BitmapFactory.decodeFile(entity.imagePath);
-            Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
-            bmp.recycle();
-            msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
+            try {
+                Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
+                bmp.recycle();
+                msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
 
             SendMessageToWX.Req req = new SendMessageToWX.Req();
             req.transaction = buildTransaction("img");
